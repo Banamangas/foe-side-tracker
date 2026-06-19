@@ -574,6 +574,15 @@
 			return out;
 		}
 
+		function diamondBuildingIds() {
+			const out = [];
+			for (const b of Object.values(State.CityMapData)) {
+				if (State.PlayerID && b.player_id !== undefined && b.player_id !== State.PlayerID) continue;
+				if (buildingProducesDiamonds(b)) out.push(b.id);
+			}
+			return out;
+		}
+
 
 
 		function countCity(cityBuildings, ids) {
@@ -778,12 +787,11 @@
 				document.getElementById('st-min-btn').textContent = minimized ? '+' : '–';
 			});
 			document.getElementById('st-badge').addEventListener('click', () => {
-				if (typeof Productions !== 'undefined' && Productions && typeof Productions.init === 'function') {
-					try {
-						Productions.ActiveTab = 11;
-						Productions.init();
-						return;
-					} catch (e) {}
+				if (typeof Productions !== 'undefined' && Productions && typeof Productions.ShowOnMap === 'function') {
+					const ids = diamondBuildingIds();
+					if (ids.length > 0) {
+						try { Productions.ShowOnMap(ids); return; } catch (e) {}
+					}
 				}
 				dlHidden = !dlHidden;
 				const dl = document.getElementById('st-dlist');
@@ -822,7 +830,7 @@
 				const cnt = badge.querySelector('.st-count');
 				if (cnt) cnt.textContent = String(count);
 				badge.title = count + ' building' + (count === 1 ? '' : 's') + ' producing diamonds' +
-					(typeof Productions !== 'undefined' ? ' — click to open FoE Helper production overview' : ' — click to list');
+					(typeof Productions !== 'undefined' && Productions && typeof Productions.ShowOnMap === 'function' ? ' — click to highlight on city map' : ' — click to list');
 				const oldIcon = badge.querySelector('.st-icon-wrap, .st-icon-fallback');
 				const premiumUrl = getPremiumIconUrl();
 				if (oldIcon && premiumUrl) {
