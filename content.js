@@ -778,6 +778,13 @@
 				document.getElementById('st-min-btn').textContent = minimized ? '+' : '–';
 			});
 			document.getElementById('st-badge').addEventListener('click', () => {
+				if (typeof Productions !== 'undefined' && Productions && typeof Productions.init === 'function') {
+					try {
+						Productions.ActiveTab = 11;
+						Productions.init();
+						return;
+					} catch (e) {}
+				}
 				dlHidden = !dlHidden;
 				const dl = document.getElementById('st-dlist');
 				if (dl) dl.classList.toggle('st-dl-hidden', dlHidden);
@@ -814,7 +821,8 @@
 				badge.classList.toggle('active', count > 0);
 				const cnt = badge.querySelector('.st-count');
 				if (cnt) cnt.textContent = String(count);
-				badge.title = count + ' building' + (count === 1 ? '' : 's') + ' producing diamonds';
+				badge.title = count + ' building' + (count === 1 ? '' : 's') + ' producing diamonds' +
+					(typeof Productions !== 'undefined' ? ' — click to open FoE Helper production overview' : ' — click to list');
 				const oldIcon = badge.querySelector('.st-icon-wrap, .st-icon-fallback');
 				const premiumUrl = getPremiumIconUrl();
 				if (oldIcon && premiumUrl) {
