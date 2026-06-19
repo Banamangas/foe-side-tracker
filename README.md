@@ -1,16 +1,13 @@
 # FoE Side Tracker
 
 A **standalone** browser extension for [Forge of Empires](https://en.forgeofempires.com/)
-that tracks diamond-producing buildings, selected Great Building levels, and bonus
-building counts — directly in the game screen.
+that tracks diamond-producing buildings (in city and in inventory) and selected Great Building levels — directly in the game screen.
 
-It is an independent reimplementation of the FoE Helper *BuildingTracker* module
-and **does not depend on FoE Helper** in any way. It works on its own.
+It **does not depend on FoE Helper** in any way. It works on its own.
 
 ## Features
 
-- **Diamond badge** — a live count of buildings in your city that produce diamonds.
-  Click the badge to expand a list of the producing buildings.
+- **Diamond badge** — a live count of buildings in your city that produce diamonds in the next harvest.
 - **Tracked Great Buildings** — current level of 5 selected Great Buildings
   (Future Era Landmark, Progressive Era Landmark, Oceanic Future Landmark,
   Arctic Future Landmark, AllAge Expedition).
