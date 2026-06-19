@@ -1,0 +1,13 @@
+# Internal planning notes (not part of the extension)
+tasks/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Node (only used for CI checks, no deps)
+node_modules/
+package-lock.json
