@@ -68,8 +68,12 @@
 			CurrentEra: null,
 			entityUrlMap: null,
 			entityCache: {},
-			inflight: new Set()
+			inflight: new Set(),
+			SocialCounts: { neighbors: 0, friends: 0, guildMembers: 0 },
+			ExtendedMode: false
 		};
+
+		State.ExtendedMode = loadExtended();
 
 		const events = {};
 		const on = (name, cb) => { (events[name] || (events[name] = [])).push(cb); };
@@ -709,6 +713,21 @@
 
 		function savePos(x, y) {
 			try { localStorage.setItem(POS_KEY, JSON.stringify({ x: x, y: y })); } catch (e) {}
+		}
+
+		const EXTENDED_KEY = 'foe_side_tracker_extended';
+
+		function loadExtended() {
+			try {
+				const raw = localStorage.getItem(EXTENDED_KEY);
+				if (raw === 'true') return true;
+				if (raw === 'false') return false;
+			} catch (e) {}
+			return false;
+		}
+
+		function saveExtended(value) {
+			try { localStorage.setItem(EXTENDED_KEY, value ? 'true' : 'false'); } catch (e) {}
 		}
 
 		function applyPos(root, x, y) {
