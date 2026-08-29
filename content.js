@@ -75,6 +75,32 @@
 
 		State.ExtendedMode = loadExtended();
 
+		const Debug = {
+			logGBPayloads: true
+		};
+
+		function isGreatBuilding(b) {
+			return b && b.cityentity_id && b.type === 'greatbuilding';
+		}
+
+		function filterGBs(list) {
+			if (!Array.isArray(list)) return [];
+			return list.filter((b) => isGreatBuilding(b) && Config.GreatBuildings.indexOf(b.cityentity_id) !== -1);
+		}
+
+		function logGBPayload(source, fullPayload, gbBuildings) {
+			if (!Debug.logGBPayloads) return;
+			const gbs = Array.isArray(gbBuildings) ? gbBuildings : filterGBs(gbBuildings);
+			console.groupCollapsed('[FoE Side Tracker] GB payload — ' + source + (gbs.length ? ' (' + gbs.length + ' tracked GB' + (gbs.length === 1 ? '' : 's') + ')' : ''));
+			console.log('Source:', source);
+			console.log('Full payload:', fullPayload);
+			if (gbs.length) {
+				console.log('Great Building entries found:', gbs);
+				console.log('GB fields (first entry):', Object.keys(gbs[0]));
+			}
+			console.groupEnd();
+		}
+
 		function updateSocialCounts(list) {
 			if (!Array.isArray(list)) return;
 			let n = 0, f = 0, g = 0;
@@ -325,6 +351,9 @@
 		const Handlers = {
 			'StartupService|getData': (entry) => {
 				const rd = entry.responseData;
+				if (rd && rd.city_map && Array.isArray(rd.city_map.entities)) {
+					logGBPayload('StartupService.getData', entry, rd.city_map.entities);
+				}
 				if (rd && rd.user_data) {
 					State.PlayerID = rd.user_data.player_id || 0;
 					let era = rd.user_data.era;
@@ -344,15 +373,28 @@
 				const isMain = !req || !Array.isArray(req.requestData) || req.requestData[0] === 'main';
 				if (!isMain) return;
 				if (Array.isArray(entry.responseData)) {
+					logGBPayload('CityMapService.getEntities', entry, entry.responseData);
 					State.CityMapData = {};
 					for (const e of entry.responseData) State.CityMapData[e.id] = e;
 					emit('citymap');
 				}
 			},
-			'CityMapService|moveEntity': (entry) => mergeCityBuildings(entry.responseData),
-			'CityMapService|moveEntities': (entry) => mergeCityBuildings(entry.responseData),
-			'CityMapService|updateEntity': (entry) => mergeCityBuildings(entry.responseData),
-			'CityMapService|placeBuilding': (entry) => mergeCityBuildings(entry.responseData),
+			'CityMapService|moveEntity': (entry) => {
+				logGBPayload('CityMapService.moveEntity', entry, entry.responseData);
+				mergeCityBuildings(entry.responseData);
+			},
+			'CityMapService|moveEntities': (entry) => {
+				logGBPayload('CityMapService.moveEntities', entry, entry.responseData);
+				mergeCityBuildings(entry.responseData);
+			},
+			'CityMapService|updateEntity': (entry) => {
+				logGBPayload('CityMapService.updateEntity', entry, entry.responseData);
+				mergeCityBuildings(entry.responseData);
+			},
+			'CityMapService|placeBuilding': (entry) => {
+				logGBPayload('CityMapService.placeBuilding', entry, entry.responseData);
+				mergeCityBuildings(entry.responseData);
+			},
 			'CityMapService|removeBuilding': (entry, req) => {
 				const id = req && Array.isArray(req.requestData) && req.requestData[0];
 				if (id && State.CityMapData[id]) { delete State.CityMapData[id]; emit('citymap'); }
@@ -917,6 +959,20 @@
 		dbLoadAll().then(() => { emit('entities'); });
 
 		initSrcLinks();
+
+		window.__foeSideTrackerDebug = {
+			State,
+			Config,
+			Debug,
+			getTrackedGBs: () => Object.values(State.CityMapData).filter((b) =>
+				b && b.type === 'greatbuilding' && Config.GreatBuildings.indexOf(b.cityentity_id) !== -1
+			),
+			logCurrentGBs: () => {
+				const gbs = window.__foeSideTrackerDebug.getTrackedGBs();
+				console.log('[FoE Side Tracker] Current tracked GBs:', gbs);
+				return gbs;
+			}
+		};
 
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', scheduleUpdate, { once: true });
