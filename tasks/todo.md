@@ -189,6 +189,6 @@ values. No `content.js` changes were required.
 - [x] Step 5: Validate numeric fields in `getTempleOfRelicsStat`
 - [x] Step 6: Run `node --check content.js`
 - [x] Step 7: Re-run Task 6 smoke test and clean up
-- [ ] Step 8: Commit changes
-- [ ] Step 9: Self-review
-- [ ] Step 10: Write social-count-fix-report.md
+- [x] Step 8: Commit changes
+- [x] Step 9: Self-review
+- [x] Step 10: Write social-count-fix-report.md
