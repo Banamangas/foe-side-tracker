@@ -106,6 +106,7 @@
 			let n = 0, f = 0, g = 0;
 			for (const p of list) {
 				if (!p) continue;
+				if (State.PlayerID && p.player_id === State.PlayerID) continue;
 				if (p.is_neighbor) n++;
 				if (p.is_friend) f++;
 				if (p.is_guild_member) g++;
@@ -122,6 +123,7 @@
 			let count = 0;
 			for (const p of list) {
 				if (!p) continue;
+				if (State.PlayerID && p.player_id === State.PlayerID) continue;
 				if (category === 'neighbors' && p.is_neighbor) count++;
 				else if (category === 'friends' && p.is_friend) count++;
 				else if (category === 'guildMembers' && p.is_guild_member) count++;
@@ -179,7 +181,7 @@
 		function getTempleOfRelicsStat(b) {
 			const bonus = getGBBonus(b);
 			if (!bonus || typeof bonus.value !== 'number' || isNaN(bonus.value) || typeof bonus.amount !== 'number' || isNaN(bonus.amount)) return '—';
-			const foy = (bonus.value / 100) * (bonus.amount / 100) * 80 * 0.01;
+			const foy = (bonus.value / 100) * (bonus.amount / 100) * 80 * 0.15;
 			return fmt2(foy);
 		}
 
@@ -832,7 +834,7 @@
 .st-diamond-badge .st-count { position: absolute; top: -7px; right: -7px; background: #cc3333; color: white; font-size: 10px; font-weight: bold; padding: 0 4px; border-radius: 8px; min-width: 14px; text-align: center; line-height: 14px; }
 .st-diamond-badge.active .st-count { background: #33cc33; }
 .st-body { display: flex; flex-direction: column; gap: 8px; }
-.st-section { display: flex; justify-content: space-around; gap: 8px; flex-wrap: wrap; }
+		.st-section { display: flex; justify-content: space-around; gap: 4px; flex-wrap: wrap; }
 .st-gb-item, .st-building-item { display: flex; flex-direction: column; align-items: center; min-width: 40px; }
 .st-icon-wrap { position: relative; width: 32px; height: 32px; }
 .st-icon { width: 32px; height: 32px; object-fit: contain; background: rgba(0,0,0,0.3); border-radius: 3px; padding: 2px; box-sizing: border-box; }

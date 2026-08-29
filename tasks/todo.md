@@ -159,7 +159,8 @@ Supported GBs and stat formulas:
 - `X_ArcticFuture_Landmark3` (Seed Vault) → expected diamonds:
   `(neighbors + friends + guildMembers) * (bonus.value / 100) * 0.01 * 50`
 - `X_AllAge_Expedition` (Temple of Relics) → expected FoY per week:
-  `(bonus.value / 100) * (bonus.amount / 100) * 80 * 0.01`
+  `(bonus.value / 100) * (bonus.amount / 100) * 80 * 0.15`
+- Social counts exclude the player's own `player_id`.
 
 ### Smoke-test results
 
@@ -174,7 +175,7 @@ X_FutureEra_Landmark1       level=180 stat=100%
 X_ProgressiveEra_Landmark2  level=180 stat=1000%
 X_OceanicFuture_Landmark3   level=126 stat=15 @ 74%
 X_ArcticFuture_Landmark3    level=173 stat=24.53
-X_AllAge_Expedition         level=174 stat=0.08
+X_AllAge_Expedition         level=174 stat=1.14
 ```
 
 All tracked GBs were found in the sample extract and produced the expected stat
