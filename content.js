@@ -829,6 +829,9 @@
 .st-diamond-list.st-dl-hidden { display: none; }
 .st-diamond-list div { padding: 1px 0; }
 .st-min-btn { cursor: pointer; color: #c0a060; font-weight: bold; padding: 0 4px; }
+.st-expand-btn { cursor: pointer; color: #c0a060; font-weight: bold; padding: 0 4px; }
+.st-gb-extended { min-width: 56px; }
+.st-gb-stat { font-size: 10px; color: #c0b090; margin-top: 1px; font-weight: normal; text-align: center; line-height: 1.2; }
 `;
 
 		let widgetBuilt = false;
