@@ -75,6 +75,22 @@
 
 		State.ExtendedMode = loadExtended();
 
+		function updateSocialCounts(list) {
+			if (!Array.isArray(list)) return;
+			let n = 0, f = 0, g = 0;
+			for (const p of list) {
+				if (!p) continue;
+				if (p.is_neighbor) n++;
+				if (p.is_friend) f++;
+				if (p.is_guild_member) g++;
+			}
+			let changed = false;
+			if (n !== State.SocialCounts.neighbors) { State.SocialCounts.neighbors = n; changed = true; }
+			if (f !== State.SocialCounts.friends) { State.SocialCounts.friends = f; changed = true; }
+			if (g !== State.SocialCounts.guildMembers) { State.SocialCounts.guildMembers = g; changed = true; }
+			if (changed) emit('social');
+		}
+
 		const events = {};
 		const on = (name, cb) => { (events[name] || (events[name] = [])).push(cb); };
 		const emit = (name) => { const list = events[name]; if (!list) return; for (const cb of list) { try { cb(); } catch (e) {} } };
@@ -315,6 +331,9 @@
 					if (era && era.era) era = era.era;
 					State.CurrentEra = era;
 				}
+				if (rd && Array.isArray(rd.socialbar_list)) {
+					updateSocialCounts(rd.socialbar_list);
+				}
 				if (rd && rd.city_map && Array.isArray(rd.city_map.entities)) {
 					State.CityMapData = {};
 					for (const e of rd.city_map.entities) State.CityMapData[e.id] = e;
@@ -351,6 +370,25 @@
 					State.Inventory[rd[0]].inStock = rd[1];
 					emit('inventory');
 				}
+			},
+			'OtherPlayerService|getNeighborList': (entry) => {
+				if (Array.isArray(entry.responseData)) updateSocialCounts(entry.responseData);
+				else if (Array.isArray(entry.responseData.neighbours)) updateSocialCounts(entry.responseData.neighbours);
+			},
+			'OtherPlayerService|getFriendsList': (entry) => {
+				if (Array.isArray(entry.responseData)) updateSocialCounts(entry.responseData);
+				else if (Array.isArray(entry.responseData.friends)) updateSocialCounts(entry.responseData.friends);
+			},
+			'OtherPlayerService|getClanMemberList': (entry) => {
+				if (Array.isArray(entry.responseData)) updateSocialCounts(entry.responseData);
+				else if (Array.isArray(entry.responseData.guildMembers)) updateSocialCounts(entry.responseData.guildMembers);
+			},
+			'OtherPlayerService|getSocialList': (entry) => {
+				const rd = entry.responseData;
+				if (!rd) return;
+				if (Array.isArray(rd.neighbours)) updateSocialCounts(rd.neighbours);
+				if (Array.isArray(rd.friends)) updateSocialCounts(rd.friends);
+				if (Array.isArray(rd.guildMembers)) updateSocialCounts(rd.guildMembers);
 			}
 		};
 
@@ -874,6 +912,7 @@
 		on('entities', scheduleUpdate);
 		on('lookup', scheduleUpdate);
 		on('filelist', scheduleUpdate);
+		on('social', scheduleUpdate);
 
 		dbLoadAll().then(() => { emit('entities'); });
 
