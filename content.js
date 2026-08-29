@@ -760,9 +760,11 @@
 				const level = gb ? gb.level : 0;
 				const name = (State.CityEntities[gbId] && State.CityEntities[gbId].name) || gbId;
 				const icon = getBuildingIconUrl(gbId);
-				html += '<div class="st-gb-item" title="' + escapeAttr(name) + '">' +
+				const stat = State.ExtendedMode ? getGBStat(gb) : '';
+				html += '<div class="st-gb-item' + (State.ExtendedMode ? ' st-gb-extended' : '') + '" title="' + escapeAttr(name) + '">' +
 					iconHtml(icon, '★') +
 					'<span class="st-gb-lvl">' + level + '</span>' +
+					(stat ? '<span class="st-gb-stat">' + escapeAttr(stat) + '</span>' : '') +
 					'</div>';
 			}
 			return html;
@@ -884,7 +886,7 @@
 			let startX = 0, startY = 0, originX = 0, originY = 0;
 
 			header.addEventListener('mousedown', (e) => {
-				if (e.target.closest('.st-min-btn') || e.target.closest('.st-diamond-badge')) return;
+				if (e.target.closest('.st-min-btn') || e.target.closest('.st-expand-btn') || e.target.closest('.st-diamond-badge')) return;
 				dragging = true;
 				startX = e.clientX;
 				startY = e.clientY;
@@ -916,6 +918,7 @@
 				'<div class="st-header">' +
 					'<span class="st-title" id="st-title">' + escapeAttr(i18n('Boxes.BuildingTracker.Title')) + '</span>' +
 					'<span style="display:flex;align-items:center;gap:6px;">' +
+						'<span class="st-expand-btn" id="st-expand-btn" title="Expand">+</span>' +
 						'<span class="st-min-btn" id="st-min-btn" title="Minimize">–</span>' +
 						'<span class="st-diamond-badge" id="st-badge" data-count="0">' +
 							iconHtml(getPremiumIconUrl(), '♦') +
@@ -940,6 +943,14 @@
 				if (body) body.style.display = minimized ? 'none' : '';
 				document.getElementById('st-min-btn').textContent = minimized ? '+' : '–';
 			});
+			const expandBtn = document.getElementById('st-expand-btn');
+			if (expandBtn) {
+				expandBtn.addEventListener('click', () => {
+					State.ExtendedMode = !State.ExtendedMode;
+					saveExtended(State.ExtendedMode);
+					scheduleUpdate();
+				});
+			}
 			document.getElementById('st-badge').addEventListener('click', () => {
 				if (typeof Productions !== 'undefined' && Productions && typeof Productions.ShowOnMap === 'function') {
 					const ids = diamondBuildingIds();
@@ -993,6 +1004,8 @@
 				}
 			}
 			if (!dlHidden) renderDiamondList();
+			const expandBtn = document.getElementById('st-expand-btn');
+			if (expandBtn) expandBtn.textContent = State.ExtendedMode ? '−' : '+';
 		}
 
 		function renderDiamondList() {
