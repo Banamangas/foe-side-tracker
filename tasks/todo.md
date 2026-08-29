@@ -156,9 +156,9 @@ Supported GBs and stat formulas:
 - `X_FutureEra_Landmark1` (Arc) → `bonus.value` as a percentage
 - `X_ProgressiveEra_Landmark2` (Chateau Frontenac) → `bonus.value` as a percentage
 - `X_OceanicFuture_Landmark3` (Blue Galaxy) → `bonus.amount @ bonus.value%`
-- `X_ArcticFuture_Landmark3` (Seed Vault) → FP/harvest from social totals:
+- `X_ArcticFuture_Landmark3` (Seed Vault) → expected diamonds:
   `(neighbors + friends + guildMembers) * (bonus.value / 100) * 0.01 * 50`
-- `X_AllAge_Expedition` (Himeji Castle) → plunder-goods probability:
+- `X_AllAge_Expedition` (Temple of Relics) → expected FoY per week:
   `(bonus.value / 100) * (bonus.amount / 100) * 80 * 0.01`
 
 ### Smoke-test results
