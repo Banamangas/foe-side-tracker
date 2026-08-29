@@ -179,3 +179,16 @@ X_AllAge_Expedition         level=174 stat=0.08
 
 All tracked GBs were found in the sample extract and produced the expected stat
 values. No `content.js` changes were required.
+
+## Fix: OtherPlayerService social counts clobber + stat numeric validation
+
+- [x] Step 1: Add `updateSocialCount(category, list)` helper
+- [x] Step 2: Keep `updateSocialCounts(list)` for mixed `socialbar_list`
+- [x] Step 3: Update `OtherPlayerService` handlers to use `updateSocialCount`
+- [x] Step 4: Validate numeric fields in `getSeedVaultStat`
+- [x] Step 5: Validate numeric fields in `getTempleOfRelicsStat`
+- [x] Step 6: Run `node --check content.js`
+- [x] Step 7: Re-run Task 6 smoke test and clean up
+- [ ] Step 8: Commit changes
+- [ ] Step 9: Self-review
+- [ ] Step 10: Write social-count-fix-report.md

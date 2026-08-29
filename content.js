@@ -117,11 +117,26 @@
 			if (changed) emit('social');
 		}
 
-		function updateSocialFromResponse(responseData, propName) {
+		function updateSocialCount(category, list) {
+			if (!Array.isArray(list)) return;
+			let count = 0;
+			for (const p of list) {
+				if (!p) continue;
+				if (category === 'neighbors' && p.is_neighbor) count++;
+				else if (category === 'friends' && p.is_friend) count++;
+				else if (category === 'guildMembers' && p.is_guild_member) count++;
+			}
+			if (count !== State.SocialCounts[category]) {
+				State.SocialCounts[category] = count;
+				emit('social');
+			}
+		}
+
+		function updateSocialFromResponse(responseData, propName, category) {
 			if (Array.isArray(responseData)) {
-				updateSocialCounts(responseData);
+				updateSocialCount(category, responseData);
 			} else if (responseData && Array.isArray(responseData[propName])) {
-				updateSocialCounts(responseData[propName]);
+				updateSocialCount(category, responseData[propName]);
 			}
 		}
 
@@ -155,7 +170,7 @@
 
 		function getSeedVaultStat(b) {
 			const bonus = getGBBonus(b);
-			if (!bonus) return '—';
+			if (!bonus || typeof bonus.value !== 'number' || isNaN(bonus.value)) return '—';
 			const totalPeople = State.SocialCounts.neighbors + State.SocialCounts.friends + State.SocialCounts.guildMembers;
 			const diamonds = totalPeople * (bonus.value / 100) * 0.01 * 50;
 			return fmt2(diamonds);
@@ -163,7 +178,7 @@
 
 		function getTempleOfRelicsStat(b) {
 			const bonus = getGBBonus(b);
-			if (!bonus) return '—';
+			if (!bonus || typeof bonus.value !== 'number' || isNaN(bonus.value) || typeof bonus.amount !== 'number' || isNaN(bonus.amount)) return '—';
 			const foy = (bonus.value / 100) * (bonus.amount / 100) * 80 * 0.01;
 			return fmt2(foy);
 		}
@@ -477,15 +492,15 @@
 					emit('inventory');
 				}
 			},
-			'OtherPlayerService|getNeighborList': (entry) => updateSocialFromResponse(entry.responseData, 'neighbours'),
-			'OtherPlayerService|getFriendsList': (entry) => updateSocialFromResponse(entry.responseData, 'friends'),
-			'OtherPlayerService|getClanMemberList': (entry) => updateSocialFromResponse(entry.responseData, 'guildMembers'),
+			'OtherPlayerService|getNeighborList': (entry) => updateSocialFromResponse(entry.responseData, 'neighbours', 'neighbors'),
+			'OtherPlayerService|getFriendsList': (entry) => updateSocialFromResponse(entry.responseData, 'friends', 'friends'),
+			'OtherPlayerService|getClanMemberList': (entry) => updateSocialFromResponse(entry.responseData, 'guildMembers', 'guildMembers'),
 			'OtherPlayerService|getSocialList': (entry) => {
 				const rd = entry.responseData;
 				if (!rd) return;
-				if (Array.isArray(rd.neighbours)) updateSocialCounts(rd.neighbours);
-				if (Array.isArray(rd.friends)) updateSocialCounts(rd.friends);
-				if (Array.isArray(rd.guildMembers)) updateSocialCounts(rd.guildMembers);
+				if (Array.isArray(rd.neighbours)) updateSocialCount('neighbors', rd.neighbours);
+				if (Array.isArray(rd.friends)) updateSocialCount('friends', rd.friends);
+				if (Array.isArray(rd.guildMembers)) updateSocialCount('guildMembers', rd.guildMembers);
 			}
 		};
 
