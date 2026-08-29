@@ -69,8 +69,8 @@ Single self-contained MAIN-world content script `content.js` (no chrome.* APIs n
   - Full payload object
   - Any tracked GB entries found inside it
   - Key list of the first GB entry so you can see which fields are available
-- A global debug object is exposed at `window.__foeSideTrackerDebug` with `State`, `Config`, `getTrackedGBs()`, and `logCurrentGBs()`.
-- Toggle via `Debug.logGBPayloads` (currently `true`).
+- A global debug object is exposed at `window.__foeSideTrackerDebug` with `getTrackedGBs()`, `logCurrentGBs()`, and `enableLogging()`.
+- GB payload logging defaults to `false`; call `__foeSideTrackerDebug.enableLogging()` to inspect payloads.
 
 ## Review
 Standalone MV3 extension built at `/home/born/Github/foe-side-tracker/`.
@@ -153,10 +153,10 @@ next to each Great Building entry and is calculated from the live `bonus` data
 on the city-map entity plus the cached social counts.
 
 Supported GBs and stat formulas:
-- `X_FutureEra_Landmark1` (Arctic Orangery) → `bonus.value` as a percentage
+- `X_FutureEra_Landmark1` (Arc) → `bonus.value` as a percentage
 - `X_ProgressiveEra_Landmark2` (Chateau Frontenac) → `bonus.value` as a percentage
-- `X_OceanicFuture_Landmark3` (Kraken) → `bonus.amount @ bonus.value%`
-- `X_ArcticFuture_Landmark3` (Blue Galaxy) → FP/harvest from social totals:
+- `X_OceanicFuture_Landmark3` (Blue Galaxy) → `bonus.amount @ bonus.value%`
+- `X_ArcticFuture_Landmark3` (Seed Vault) → FP/harvest from social totals:
   `(neighbors + friends + guildMembers) * (bonus.value / 100) * 0.01 * 50`
 - `X_AllAge_Expedition` (Himeji Castle) → plunder-goods probability:
   `(bonus.value / 100) * (bonus.amount / 100) * 80 * 0.01`

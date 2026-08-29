@@ -76,7 +76,7 @@
 		State.ExtendedMode = loadExtended();
 
 		const Debug = {
-			logGBPayloads: true
+			logGBPayloads: false
 		};
 
 		function isGreatBuilding(b) {
@@ -117,6 +117,14 @@
 			if (changed) emit('social');
 		}
 
+		function updateSocialFromResponse(responseData, propName) {
+			if (Array.isArray(responseData)) {
+				updateSocialCounts(responseData);
+			} else if (responseData && Array.isArray(responseData[propName])) {
+				updateSocialCounts(responseData[propName]);
+			}
+		}
+
 		function fmt2(n) {
 			if (n == null || isNaN(n)) return '—';
 			return (Math.round(n * 100) / 100).toFixed(2);
@@ -126,21 +134,22 @@
 			return b && b.bonus ? b.bonus : null;
 		}
 
-		function getArcStat(b) {
-			const bonus = getGBBonus(b);
-			if (!bonus) return '—';
+		function formatPercentStat(bonus) {
+			if (!bonus || typeof bonus.value !== 'number' || isNaN(bonus.value)) return '—';
 			return bonus.value + '%';
 		}
 
+		function getArcStat(b) {
+			return formatPercentStat(getGBBonus(b));
+		}
+
 		function getFrontenacStat(b) {
-			const bonus = getGBBonus(b);
-			if (!bonus) return '—';
-			return bonus.value + '%';
+			return formatPercentStat(getGBBonus(b));
 		}
 
 		function getBlueGalaxyStat(b) {
 			const bonus = getGBBonus(b);
-			if (!bonus) return '—';
+			if (!bonus || typeof bonus.amount !== 'number' || isNaN(bonus.amount) || typeof bonus.value !== 'number' || isNaN(bonus.value)) return '—';
 			return bonus.amount + ' @ ' + bonus.value + '%';
 		}
 
@@ -468,18 +477,9 @@
 					emit('inventory');
 				}
 			},
-			'OtherPlayerService|getNeighborList': (entry) => {
-				if (Array.isArray(entry.responseData)) updateSocialCounts(entry.responseData);
-				else if (Array.isArray(entry.responseData.neighbours)) updateSocialCounts(entry.responseData.neighbours);
-			},
-			'OtherPlayerService|getFriendsList': (entry) => {
-				if (Array.isArray(entry.responseData)) updateSocialCounts(entry.responseData);
-				else if (Array.isArray(entry.responseData.friends)) updateSocialCounts(entry.responseData.friends);
-			},
-			'OtherPlayerService|getClanMemberList': (entry) => {
-				if (Array.isArray(entry.responseData)) updateSocialCounts(entry.responseData);
-				else if (Array.isArray(entry.responseData.guildMembers)) updateSocialCounts(entry.responseData.guildMembers);
-			},
+			'OtherPlayerService|getNeighborList': (entry) => updateSocialFromResponse(entry.responseData, 'neighbours'),
+			'OtherPlayerService|getFriendsList': (entry) => updateSocialFromResponse(entry.responseData, 'friends'),
+			'OtherPlayerService|getClanMemberList': (entry) => updateSocialFromResponse(entry.responseData, 'guildMembers'),
 			'OtherPlayerService|getSocialList': (entry) => {
 				const rd = entry.responseData;
 				if (!rd) return;
@@ -1032,9 +1032,12 @@
 		initSrcLinks();
 
 		window.__foeSideTrackerDebug = {
-			State,
-			Config,
 			Debug,
+			enableLogging: () => {
+				Debug.logGBPayloads = true;
+				console.log('[FoE Side Tracker] GB payload logging enabled.');
+				return Debug.logGBPayloads;
+			},
 			getTrackedGBs: () => Object.values(State.CityMapData).filter((b) =>
 				b && b.type === 'greatbuilding' && Config.GreatBuildings.indexOf(b.cityentity_id) !== -1
 			),
@@ -1044,6 +1047,10 @@
 				return gbs;
 			}
 		};
+
+		if (!Debug.logGBPayloads) {
+			console.log('[FoE Side Tracker] GB payload logging is disabled. Run __foeSideTrackerDebug.enableLogging() to inspect payloads.');
+		}
 
 		if (document.readyState === 'loading') {
 			document.addEventListener('DOMContentLoaded', scheduleUpdate, { once: true });
