@@ -117,6 +117,61 @@
 			if (changed) emit('social');
 		}
 
+		function fmt2(n) {
+			if (n == null || isNaN(n)) return '—';
+			return (Math.round(n * 100) / 100).toFixed(2);
+		}
+
+		function getGBBonus(b) {
+			return b && b.bonus ? b.bonus : null;
+		}
+
+		function getArcStat(b) {
+			const bonus = getGBBonus(b);
+			if (!bonus) return '—';
+			return bonus.value + '%';
+		}
+
+		function getFrontenacStat(b) {
+			const bonus = getGBBonus(b);
+			if (!bonus) return '—';
+			return bonus.value + '%';
+		}
+
+		function getBlueGalaxyStat(b) {
+			const bonus = getGBBonus(b);
+			if (!bonus) return '—';
+			return bonus.amount + ' @ ' + bonus.value + '%';
+		}
+
+		function getSeedVaultStat(b) {
+			const bonus = getGBBonus(b);
+			if (!bonus) return '—';
+			const totalPeople = State.SocialCounts.neighbors + State.SocialCounts.friends + State.SocialCounts.guildMembers;
+			const diamonds = totalPeople * (bonus.value / 100) * 0.01 * 50;
+			return fmt2(diamonds);
+		}
+
+		function getTempleOfRelicsStat(b) {
+			const bonus = getGBBonus(b);
+			if (!bonus) return '—';
+			const foy = (bonus.value / 100) * (bonus.amount / 100) * 80 * 0.01;
+			return fmt2(foy);
+		}
+
+		const GBStatProviders = {
+			'X_FutureEra_Landmark1': getArcStat,
+			'X_ProgressiveEra_Landmark2': getFrontenacStat,
+			'X_OceanicFuture_Landmark3': getBlueGalaxyStat,
+			'X_ArcticFuture_Landmark3': getSeedVaultStat,
+			'X_AllAge_Expedition': getTempleOfRelicsStat
+		};
+
+		function getGBStat(b) {
+			const provider = GBStatProviders[b && b.cityentity_id];
+			return provider ? provider(b) : '';
+		}
+
 		const events = {};
 		const on = (name, cb) => { (events[name] || (events[name] = [])).push(cb); };
 		const emit = (name) => { const list = events[name]; if (!list) return; for (const cb of list) { try { cb(); } catch (e) {} } };
